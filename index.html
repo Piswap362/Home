@@ -119,35 +119,6 @@
             background-color: white;
             border-radius: 3px;
         }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: white;
-            color: black;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 80%;
-        }
-        .modal-content button {
-            background: #6A0DAD;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
@@ -176,13 +147,6 @@
         <a href="https://piswap362.github.io/Tasks/" class="menu-btn"><i class="fas fa-tasks"></i> Tasks</a>
         <a href="https://piswap362.github.io/Friends/" class="menu-btn"><i class="fas fa-user-friends"></i> Friends</a>
         <a href="https://piswap362.github.io/Wallet/" class="menu-btn"><i class="fas fa-wallet"></i> Wallet</a>
-    </div>
-    <div id="wallet-modal" class="modal">
-        <div class="modal-content">
-            <h3>Connect Your Wallet</h3>
-            <p>Select your wallet to connect</p>
-            <button onclick="closeModal()">Close</button>
-        </div>
     </div>
     <script>
         let points = parseFloat(localStorage.getItem("points")) || 0;
@@ -241,11 +205,7 @@
         restoreButtonState();
 
         function openModal() {
-            document.getElementById("wallet-modal").style.display = "flex";
-        }
-
-        function closeModal() {
-            document.getElementById("wallet-modal").style.display = "none";
+            alert("Wallet connection modal will appear.");
         }
     </script>
 </body>
