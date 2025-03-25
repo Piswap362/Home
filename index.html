@@ -20,18 +20,19 @@
             padding: 20px;
         }
         .connect-wallet {
-            background-color: #fff;
-            color: #6A0DAD;
+            background-color: gray;
+            color: white;
             border: none;
             padding: 12px 20px;
             font-size: 18px;
-            cursor: pointer;
+            cursor: not-allowed;
             border-radius: 5px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            opacity: 0.6;
         }
         .points-section {
             margin-top: 20px;
@@ -123,7 +124,7 @@
 </head>
 <body>
     <div class="container">
-        <button class="connect-wallet" onclick="openModal()">
+        <button class="connect-wallet" disabled>
             <i class="fas fa-wallet"></i> Connect Wallet
         </button>
         <div class="points-section">
@@ -203,10 +204,6 @@
         }
 
         restoreButtonState();
-
-        function openModal() {
-            alert("Wallet connection modal will appear.");
-        }
     </script>
 </body>
 </html>
