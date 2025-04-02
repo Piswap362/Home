@@ -313,13 +313,24 @@
         <a href="https://piswap362.github.io/Wallet/" class="menu-btn"><i class="fas fa-wallet"></i> Wallet</a>
     </div>
     
-    <!-- Modal window -->
+    <!-- Coming Soon Modal window -->
     <div class="modal" id="comingSoonModal">
         <div class="modal-content">
             <i class="fas fa-hourglass-half"></i>
             <h3>Coming Soon</h3>
             <p>Wallet connection feature will be available when Pi Network opens its mainnet!</p>
             <button class="close-modal" id="closeModalBtn">OK</button>
+        </div>
+    </div>
+    
+    <!-- IP Security Notification Modal -->
+    <div class="modal" id="ipSecurityModal">
+        <div class="modal-content">
+            <i class="fas fa-shield-alt"></i>
+            <h3>Enhanced Security Notice</h3>
+            <p>For your security, we're saving your data using your device's IP address. This method provides better protection against unauthorized access.</p>
+            <p>A feature will be available soon if you decide to switch devices.</p>
+            <button class="close-modal" id="closeIpModalBtn">I Understand</button>
         </div>
     </div>
     
@@ -335,6 +346,24 @@
         const comingSoonModal = document.getElementById("comingSoonModal");
         const closeModalBtn = document.getElementById("closeModalBtn");
         
+        // IP Security Modal elements
+        const ipSecurityModal = document.getElementById("ipSecurityModal");
+        const closeIpModalBtn = document.getElementById("closeIpModalBtn");
+        
+        // Show IP Security modal once every 24 hours
+        window.addEventListener('load', function() {
+            const now = Date.now();
+            const lastIpModalTime = parseInt(localStorage.getItem('lastIpModalTime')) || 0;
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+            
+            if (now - lastIpModalTime >= twentyFourHours) {
+                setTimeout(function() {
+                    ipSecurityModal.style.display = "flex";
+                    localStorage.setItem('lastIpModalTime', now.toString());
+                }, 1000);
+            }
+        });
+        
         connectWalletBtn.addEventListener("click", function() {
             comingSoonModal.style.display = "flex";
         });
@@ -343,10 +372,17 @@
             comingSoonModal.style.display = "none";
         });
         
-        // Close modal when clicking outside
+        closeIpModalBtn.addEventListener("click", function() {
+            ipSecurityModal.style.display = "none";
+        });
+        
+        // Close modals when clicking outside
         window.addEventListener("click", function(event) {
             if (event.target === comingSoonModal) {
                 comingSoonModal.style.display = "none";
+            }
+            if (event.target === ipSecurityModal) {
+                ipSecurityModal.style.display = "none";
             }
         });
 
