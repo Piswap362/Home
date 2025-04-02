@@ -7,15 +7,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
-            --pi-primary: #1EC0C0;  /* Pi Network teal */
-            --pi-secondary: #2ECC71; /* Pi Network green */
-            --pi-accent: #F39C12;   /* Pi Network orange */
-            --pi-dark: #1A3A4F;     /* Dark blue from Pi Network */
-            --pi-light: #E8F4F8;    /* Light background from Pi Network */
+            --pi-primary: #1EC0C0;
+            --pi-secondary: #2ECC71;
+            --pi-accent: #F39C12;
+            --pi-dark: #1A3A4F;
+            --pi-light: #E8F4F8;
             --text-light: #FFFFFF;
-            --text-dark: #2C3E50;   /* Dark text from Pi Network */
+            --text-dark: #2C3E50;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
+            
+            /* Level colors */
+            --bronze: #CD7F32;
+            --silver: #C0C0C0;
+            --gold: #FFD700;
+            --platinum: #E5E4E2;
+            --diamond: #B9F2FF;
+            --legendary: #FF0000;
+            --cosmic: #0066FF;
+            --infinity: #800080;
         }
         
         body {
@@ -57,7 +67,6 @@
             margin-bottom: 20px;
         }
         
-        /* Modal window */
         .modal {
             display: none;
             position: fixed;
@@ -278,6 +287,87 @@
         .sticky-buttons-spacer {
             height: 20px;
         }
+        
+        /* Level System Styles */
+        .level-section {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(30, 192, 192, 0.2);
+        }
+        
+        .level-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .level-info {
+            text-align: left;
+        }
+        
+        .level-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .level-progress {
+            width: 100%;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .level-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pi-primary), var(--pi-accent));
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .level-icon {
+            font-size: 30px;
+            margin-left: 15px;
+        }
+        
+        .bronze { color: var(--bronze); }
+        .silver { color: var(--silver); }
+        .gold { color: var(--gold); }
+        .platinum { color: var(--platinum); }
+        .diamond { color: var(--diamond); }
+        .legendary { color: var(--legendary); }
+        .cosmic { color: var(--cosmic); }
+        .infinity { color: var(--infinity); }
+        
+        /* Level Up Modal */
+        .level-up-modal .modal-content {
+            border-color: var(--pi-accent);
+        }
+        
+        .level-up-modal .modal-content i {
+            color: var(--pi-accent);
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .level-up-modal .modal-content h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .level-up-modal .new-level {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -287,13 +377,29 @@
         </button>
         
         <div class="points-section">
-            <h2>Total Pi Swap</h2>  <!-- Removed "Points" from the heading -->
+            <h2>Total Pi Swap</h2>
             <p id="points">0</p>
             <button class="collect-button" id="collect-btn" onclick="collectPoints()">
                 <i class="fas fa-coins"></i>
             </button>
             <p id="timer">Next collection in: 00:00:00</p>
         </div>
+        
+        <div class="level-section">
+            <div class="level-display">
+                <div class="level-info">
+                    <div class="level-name" id="current-level">Bronze 1</div>
+                    <div id="next-level">Next: Bronze 2 (60 points)</div>
+                    <div class="level-progress">
+                        <div class="level-progress-bar" id="level-progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="level-icon" id="level-icon">
+                    <i class="fas fa-award bronze"></i>
+                </div>
+            </div>
+        </div>
+        
         <div class="info-section">
             <p>Pi Swap is a decentralized exchange platform built for the Pi Network ecosystem, allowing users to swap Pi coins securely.</p>
         </div>
@@ -302,7 +408,7 @@
         
         <div class="action-buttons">
             <a href="https://piswap362.github.io/Swap/"><button><i class="fas fa-exchange-alt"></i> Swap</button></a>
-            <a href="https://piswap362.github.io/Kyc/"><button><i class="fas fa-user-check"></i> KYC</button></a>  <!-- Changed from NFT to KYC -->
+            <a href="https://piswap362.github.io/Kyc/"><button><i class="fas fa-user-check"></i> KYC</button></a>
         </div>
     </div>
     
@@ -334,23 +440,72 @@
         </div>
     </div>
     
+    <!-- Level Up Modal -->
+    <div class="modal level-up-modal" id="levelUpModal">
+        <div class="modal-content">
+            <i class="fas fa-trophy"></i>
+            <h3>Level Up!</h3>
+            <p>Congratulations! You've reached a new level:</p>
+            <div class="new-level" id="new-level-display">Bronze 2</div>
+            <button class="close-modal" id="closeLevelUpModalBtn">Awesome!</button>
+        </div>
+    </div>
+    
     <script>
+        // نظام المستويات المحدث (فرق 60 نقطة حتى Diamond، ثم 300 نقطة بعد ذلك)
+        const LEVELS = [
+            // المستويات الأساسية (فرق 60 نقطة)
+            { name: "Bronze 1", minPoints: 0, icon: "fa-award", color: "bronze" },
+            { name: "Bronze 2", minPoints: 60, icon: "fa-award", color: "bronze" },
+            { name: "Bronze 3", minPoints: 120, icon: "fa-award", color: "bronze" },
+            { name: "Silver 1", minPoints: 180, icon: "fa-medal", color: "silver" },
+            { name: "Silver 2", minPoints: 240, icon: "fa-medal", color: "silver" },
+            { name: "Silver 3", minPoints: 300, icon: "fa-medal", color: "silver" },
+            { name: "Gold 1", minPoints: 360, icon: "fa-trophy", color: "gold" },
+            { name: "Gold 2", minPoints: 420, icon: "fa-trophy", color: "gold" },
+            { name: "Gold 3", minPoints: 480, icon: "fa-trophy", color: "gold" },
+            { name: "Platinum 1", minPoints: 540, icon: "fa-crown", color: "platinum" },
+            { name: "Platinum 2", minPoints: 600, icon: "fa-crown", color: "platinum" },
+            { name: "Platinum 3", minPoints: 660, icon: "fa-crown", color: "platinum" },
+            { name: "Diamond", minPoints: 720, icon: "fa-gem", color: "diamond" },
+            
+            // المستويات المتقدمة (فرق 300 نقطة)
+            { name: "Diamond II", minPoints: 1020, icon: "fa-gem", color: "diamond" },
+            { name: "Diamond III", minPoints: 1320, icon: "fa-gem", color: "diamond" },
+            { name: "Legendary", minPoints: 1620, icon: "fa-fire", color: "legendary" },
+            { name: "Legendary II", minPoints: 1920, icon: "fa-fire", color: "legendary" },
+            { name: "Legendary III", minPoints: 2220, icon: "fa-fire", color: "legendary" },
+            { name: "Cosmic", minPoints: 2520, icon: "fa-rocket", color: "cosmic" },
+            { name: "Cosmic II", minPoints: 2820, icon: "fa-rocket", color: "cosmic" },
+            { name: "Cosmic III", minPoints: 3120, icon: "fa-rocket", color: "cosmic" },
+            { name: "Infinity", minPoints: 3420, icon: "fa-infinity", color: "infinity" }
+        ];
+        
+        // نظام النقاط
         let points = parseFloat(localStorage.getItem("points")) || 0;
         let lastCollectTime = parseInt(localStorage.getItem("lastCollectTime")) || 0;
+        let currentLevelIndex = parseInt(localStorage.getItem("currentLevelIndex")) || 0;
         let collectBtn = document.getElementById("collect-btn");
         let timerDisplay = document.getElementById("timer");
-        document.getElementById("points").innerText = points;
-
-        // Modal management
+        
+        // عناصر النوافذ المنبثقة
         const connectWalletBtn = document.getElementById("connectWalletBtn");
         const comingSoonModal = document.getElementById("comingSoonModal");
         const closeModalBtn = document.getElementById("closeModalBtn");
-        
-        // IP Security Modal elements
         const ipSecurityModal = document.getElementById("ipSecurityModal");
         const closeIpModalBtn = document.getElementById("closeIpModalBtn");
+        const levelUpModal = document.getElementById("levelUpModal");
+        const closeLevelUpModalBtn = document.getElementById("closeLevelUpModalBtn");
         
-        // Show IP Security modal once every 24 hours
+        // تهيئة الصفحة
+        document.addEventListener("DOMContentLoaded", function() {
+            updatePointsDisplay();
+            updateLevelDisplay();
+            restoreButtonState();
+            checkForLevelUp();
+        });
+        
+        // عرض نافذة الأمان مرة كل 24 ساعة
         window.addEventListener('load', function() {
             const now = Date.now();
             const lastIpModalTime = parseInt(localStorage.getItem('lastIpModalTime')) || 0;
@@ -364,6 +519,7 @@
             }
         });
         
+        // مستمعي الأحداث للنوافذ المنبثقة
         connectWalletBtn.addEventListener("click", function() {
             comingSoonModal.style.display = "flex";
         });
@@ -376,7 +532,11 @@
             ipSecurityModal.style.display = "none";
         });
         
-        // Close modals when clicking outside
+        closeLevelUpModalBtn.addEventListener("click", function() {
+            levelUpModal.style.display = "none";
+        });
+        
+        // إغلاق النوافذ عند النقر خارجها
         window.addEventListener("click", function(event) {
             if (event.target === comingSoonModal) {
                 comingSoonModal.style.display = "none";
@@ -384,17 +544,32 @@
             if (event.target === ipSecurityModal) {
                 ipSecurityModal.style.display = "none";
             }
+            if (event.target === levelUpModal) {
+                levelUpModal.style.display = "none";
+            }
         });
-
+        
+        // جمع النقاط
         function collectPoints() {
             let now = Date.now();
             if (now - lastCollectTime < 86400000) return;
-
-            points += 5;
+            
+            const homePoints = parseFloat(localStorage.getItem("homePoints")) || 0;
+            const tasksPoints = parseFloat(localStorage.getItem("tasksPoints")) || 0;
+            const friendsPoints = parseFloat(localStorage.getItem("friendsPoints")) || 0;
+            
+            const newPoints = 5 + homePoints + tasksPoints + friendsPoints;
+            points += newPoints;
+            
             lastCollectTime = now;
             localStorage.setItem("points", points);
             localStorage.setItem("lastCollectTime", lastCollectTime);
-            document.getElementById("points").innerText = points;
+            
+            localStorage.setItem("homePoints", "0");
+            localStorage.setItem("tasksPoints", "0");
+            localStorage.setItem("friendsPoints", "0");
+            
+            updatePointsDisplay();
             collectBtn.disabled = true;
             
             collectBtn.style.transform = "scale(1.1)";
@@ -403,8 +578,72 @@
             }, 200);
             
             startTimer();
+            checkForLevelUp();
         }
-
+        
+        // تحديث عرض النقاط
+        function updatePointsDisplay() {
+            document.getElementById("points").innerText = points;
+            updateLevelDisplay();
+        }
+        
+        // تحديث عرض المستوى
+        function updateLevelDisplay() {
+            let newLevelIndex = 0;
+            for (let i = LEVELS.length - 1; i >= 0; i--) {
+                if (points >= LEVELS[i].minPoints) {
+                    newLevelIndex = i;
+                    break;
+                }
+            }
+            
+            if (newLevelIndex !== currentLevelIndex) {
+                currentLevelIndex = newLevelIndex;
+                localStorage.setItem("currentLevelIndex", currentLevelIndex);
+            }
+            
+            const currentLevel = LEVELS[currentLevelIndex];
+            const nextLevel = currentLevelIndex < LEVELS.length - 1 ? LEVELS[currentLevelIndex + 1] : null;
+            
+            document.getElementById("current-level").innerText = currentLevel.name;
+            document.getElementById("current-level").className = `level-name ${currentLevel.color}`;
+            
+            const levelIcon = document.getElementById("level-icon");
+            levelIcon.innerHTML = `<i class="fas ${currentLevel.icon} ${currentLevel.color}"></i>`;
+            
+            if (nextLevel) {
+                document.getElementById("next-level").innerText = `Next: ${nextLevel.name} (${nextLevel.minPoints} points)`;
+                const progress = ((points - currentLevel.minPoints) / (nextLevel.minPoints - currentLevel.minPoints)) * 100;
+                document.getElementById("level-progress-bar").style.width = `${Math.min(100, progress)}%`;
+            } else {
+                document.getElementById("next-level").innerText = "Max level reached!";
+                document.getElementById("level-progress-bar").style.width = "100%";
+            }
+        }
+        
+        // التحقق من ترقية المستوى
+        function checkForLevelUp() {
+            const savedLevelIndex = parseInt(localStorage.getItem("savedLevelIndex")) || 0;
+            
+            if (currentLevelIndex > savedLevelIndex) {
+                showLevelUpModal(currentLevelIndex);
+                localStorage.setItem("savedLevelIndex", currentLevelIndex);
+            }
+        }
+        
+        // عرض نافذة ترقية المستوى
+        function showLevelUpModal(levelIndex) {
+            const level = LEVELS[levelIndex];
+            document.getElementById("new-level-display").innerText = level.name;
+            document.getElementById("new-level-display").className = `new-level ${level.color}`;
+            
+            const modalIcon = document.querySelector("#levelUpModal .modal-content i");
+            modalIcon.className = `fas ${level.icon} ${level.color}`;
+            
+            levelUpModal.style.display = "flex";
+        }
+        
+        // بدء المؤقت
         function startTimer() {
             let interval = setInterval(() => {
                 let now = Date.now();
@@ -421,7 +660,8 @@
                 timerDisplay.innerText = `Next collection in: ${hours}:${minutes}:${seconds}`;
             }, 1000);
         }
-
+        
+        // استعادة حالة الزر
         function restoreButtonState() {
             let now = Date.now();
             if (now - lastCollectTime >= 86400000) {
@@ -432,8 +672,6 @@
                 startTimer();
             }
         }
-
-        restoreButtonState();
     </script>
 </body>
 </html>
