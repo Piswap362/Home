@@ -45,6 +45,7 @@
             padding-bottom: 80px;
             min-height: 100vh;
             box-sizing: border-box;
+            position: relative;
         }
         
         .connect-wallet {
@@ -67,6 +68,7 @@
             margin-bottom: 20px;
         }
         
+        /* Modal window */
         .modal {
             display: none;
             position: fixed;
@@ -368,9 +370,79 @@
             border-radius: 20px;
             display: inline-block;
         }
+        
+        /* New Icons Styles */
+        .side-icons {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
+        
+        .side-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--pi-primary) 0%, var(--pi-accent) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--pi-dark);
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            border: 2px solid var(--pi-dark);
+        }
+        
+        .side-icon:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .side-icon .tooltip {
+            visibility: hidden;
+            width: 120px;
+            background-color: var(--pi-dark);
+            color: var(--text-light);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            right: 60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--pi-primary);
+        }
+        
+        .side-icon:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+    <!-- Side Icons -->
+    <div class="side-icons">
+        <a href="https://piswap362.github.io/roadmap/" class="side-icon">
+            <i class="fas fa-map-marked-alt"></i>
+            <span class="tooltip">Roadmap</span>
+        </a>
+        <a href="#" class="side-icon" onclick="donate()">
+            <i class="fas fa-hand-holding-heart"></i>
+            <span class="tooltip">Donate</span>
+        </a>
+        <a href="#" class="side-icon" onclick="support()">
+            <i class="fas fa-headset"></i>
+            <span class="tooltip">Support</span>
+        </a>
+    </div>
+    
     <div class="scroll-container">
         <button class="connect-wallet" id="connectWalletBtn">
             <i class="fas fa-wallet"></i> Connect Wallet
@@ -451,6 +523,28 @@
         </div>
     </div>
     
+    <!-- Donate Modal -->
+    <div class="modal" id="donateModal">
+        <div class="modal-content">
+            <i class="fas fa-hand-holding-heart"></i>
+            <h3>Donate</h3>
+            <p>Support our project by donating Pi coins to help us improve the platform.</p>
+            <p>Wallet Address: <strong>pi1234567890</strong></p>
+            <button class="close-modal" id="closeDonateModalBtn">Close</button>
+        </div>
+    </div>
+    
+    <!-- Support Modal -->
+    <div class="modal" id="supportModal">
+        <div class="modal-content">
+            <i class="fas fa-headset"></i>
+            <h3>Support</h3>
+            <p>Need help? Contact our support team at:</p>
+            <p><strong>support@piswap.com</strong></p>
+            <button class="close-modal" id="closeSupportModalBtn">Close</button>
+        </div>
+    </div>
+    
     <script>
         // نظام المستويات المحدث (فرق 60 نقطة حتى Diamond، ثم 300 نقطة بعد ذلك)
         const LEVELS = [
@@ -481,7 +575,7 @@
             { name: "Infinity", minPoints: 3420, icon: "fa-infinity", color: "infinity" }
         ];
         
-        // نظام النقاط
+        // نظام الن��اط
         let points = parseFloat(localStorage.getItem("points")) || 0;
         let lastCollectTime = parseInt(localStorage.getItem("lastCollectTime")) || 0;
         let currentLevelIndex = parseInt(localStorage.getItem("currentLevelIndex")) || 0;
@@ -496,6 +590,10 @@
         const closeIpModalBtn = document.getElementById("closeIpModalBtn");
         const levelUpModal = document.getElementById("levelUpModal");
         const closeLevelUpModalBtn = document.getElementById("closeLevelUpModalBtn");
+        const donateModal = document.getElementById("donateModal");
+        const closeDonateModalBtn = document.getElementById("closeDonateModalBtn");
+        const supportModal = document.getElementById("supportModal");
+        const closeSupportModalBtn = document.getElementById("closeSupportModalBtn");
         
         // تهيئة الصفحة
         document.addEventListener("DOMContentLoaded", function() {
@@ -536,6 +634,14 @@
             levelUpModal.style.display = "none";
         });
         
+        closeDonateModalBtn.addEventListener("click", function() {
+            donateModal.style.display = "none";
+        });
+        
+        closeSupportModalBtn.addEventListener("click", function() {
+            supportModal.style.display = "none";
+        });
+        
         // إغلاق النوافذ عند النقر خارجها
         window.addEventListener("click", function(event) {
             if (event.target === comingSoonModal) {
@@ -547,6 +653,12 @@
             if (event.target === levelUpModal) {
                 levelUpModal.style.display = "none";
             }
+            if (event.target === donateModal) {
+                donateModal.style.display = "none";
+            }
+            if (event.target === supportModal) {
+                supportModal.style.display = "none";
+            }
         });
         
         // جمع النقاط
@@ -557,8 +669,9 @@
             const homePoints = parseFloat(localStorage.getItem("homePoints")) || 0;
             const tasksPoints = parseFloat(localStorage.getItem("tasksPoints")) || 0;
             const friendsPoints = parseFloat(localStorage.getItem("friendsPoints")) || 0;
+            const walletPoints = parseFloat(localStorage.getItem("walletPoints")) || 0;
             
-            const newPoints = 5 + homePoints + tasksPoints + friendsPoints;
+            const newPoints = 5 + homePoints + tasksPoints + friendsPoints + walletPoints;
             points += newPoints;
             
             lastCollectTime = now;
@@ -568,6 +681,7 @@
             localStorage.setItem("homePoints", "0");
             localStorage.setItem("tasksPoints", "0");
             localStorage.setItem("friendsPoints", "0");
+            localStorage.setItem("walletPoints", "0");
             
             updatePointsDisplay();
             collectBtn.disabled = true;
@@ -671,6 +785,16 @@
                 collectBtn.disabled = true;
                 startTimer();
             }
+        }
+        
+        // عرض نافذة التبرع
+        function donate() {
+            donateModal.style.display = "flex";
+        }
+        
+        // عرض نافذة الدعم
+        function support() {
+            supportModal.style.display = "flex";
         }
     </script>
 </body>
